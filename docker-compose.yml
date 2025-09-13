@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # Redis for sessions, caching, and BullMQ
+  redis:
+    image: redis:7-alpine
+    container_name: wedonet-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-development}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Backend API Server
+  backend:
+    build:
+      context: ./wedonet-backend
+      dockerfile: Dockerfile
+    container_name: wedonet-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DB_FILENAME=/app/data/database.db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-development}
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-dev-access-secret-key-at-least-32-characters-long}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-dev-refresh-secret-key-at-least-32-characters-long}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-AdminPassword123!}
+      - CORS_ORIGIN=http://localhost:3000
+    volumes:
+      - ./wedonet-backend:/app
+      - backend_data:/app/data
+      - backend_logs:/app/logs
+      - /app/node_modules
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend React App
+  frontend:
+    build:
+      context: ./wedonet-frontend
+      dockerfile: Dockerfile
+    container_name: wedonet-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001/api
+      - REACT_APP_WS_URL=ws://localhost:3001
+    volumes:
+      - ./wedonet-frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # DebugBear Dashboard (optional)
+  dashboard:
+    build:
+      context: ./debugbear-dashboard
+      dockerfile: Dockerfile
+    container_name: wedonet-dashboard
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - DEBUGBEAR_API_KEY=${DEBUGBEAR_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    volumes:
+      - ./debugbear-dashboard:/app
+      - /app/node_modules
+    restart: unless-stopped
+    profiles:
+      - dashboard
+
+  # Database Admin (SQLite Browser via Web)
+  sqliteadmin:
+    image: coleifer/sqlite-web
+    container_name: wedonet-db-admin
+    ports:
+      - "8080:8080"
+    volumes:
+      - backend_data:/data
+    command: sqlite_web /data/database.db --host 0.0.0.0 --port 8080
+    depends_on:
+      - backend
+    profiles:
+      - admin
+
+volumes:
+  redis_data:
+    name: wedonet_redis_data
+  backend_data:
+    name: wedonet_backend_data
+  backend_logs:
+    name: wedonet_backend_logs
+
+networks:
+  default:
+    name: wedonet_network
