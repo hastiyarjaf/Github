@@ -4,10 +4,12 @@
   "description": "DebugBear API testing application",
   "main": "debugTest.js",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "start": "node server.js",
-    "dev": "node server.js",
     "server": "node server.js",
-    "client": "echo 'Open public/index.html in browser'",
+    "client": "vite",
     "debug": "node debugTest.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -20,6 +22,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/aiplatform": "^5.7.0",
+    "@google/generative-ai": "^0.24.1",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
     "axios": "^1.12.0",
     "body-parser": "^2.2.0",
     "compression": "^1.8.1",
@@ -31,6 +37,15 @@
     "helmet": "^8.1.0",
     "morgan": "^1.10.1",
     "openai": "^5.20.1",
-    "socket.io": "^4.8.1"
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.3",
+    "@vitejs/plugin-react": "^5.0.2",
+    "vite": "^7.1.5"
   }
 }
