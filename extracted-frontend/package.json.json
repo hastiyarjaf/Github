@@ -1,0 +1,42 @@
+{
+  "name": "wedonet-frontend",
+  "version": "1.0.0",
+  "description": "Your project description",
+  "main": "index.js",
+  "scripts": {
+    "dev": "your-dev-command",
+    "build": "your-build-command",
+    "start": "your-start-command",
+    "test": "your-test-command"
+  },
+  "dependencies": {
+    // KEEP this line:
+    "string-width": "^4.2.3",
+    
+    // REMOVE this line completely:
+    // "string-width-cjs": "^4.2.3",
+    
+    // ... your other dependencies here
+  },
+  "devDependencies": {
+    // ... your devDependencies here
+  },
+  "overrides": {
+    "string-width-cjs": "npm:string-width@^4.2.3"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awatattor-alt/wedonet-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/awatattor-alt/wedonet-frontend/issues"
+  },
+  "homepage": "https://github.com/awatattor-alt/wedonet-frontend#readme"
+}
